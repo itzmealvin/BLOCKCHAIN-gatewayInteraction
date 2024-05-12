@@ -1,0 +1,12 @@
+p {
+    font-family: 'Space Grotesk';
+    font-size: 16px;
+}
+
+div {
+    position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
