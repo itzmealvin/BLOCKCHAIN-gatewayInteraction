@@ -77,7 +77,7 @@ function App() {
       {address !== "" && <h2>Connected Address: {address}</h2>}
       <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
         <label className="form-label" htmlFor="contract">
-          Your deployed contract (on Shibuya){" "}
+          Your deployed contract (on Sepolia testnet){" "}
         </label>
         <input className="form-control" {...register("contract")} type="text" />
         <button type="submit" className="btn btn-secondary">
