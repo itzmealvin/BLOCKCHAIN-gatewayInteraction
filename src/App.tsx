@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import "bootstrap/dist/css/bootstrap.css";
 import { Contract } from "ethers";
 import { BrowserProvider } from "ethers/providers";
 import { useState } from "react";
@@ -7,7 +8,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { z } from "zod";
 import gatewayABI from "../contracts/Gateway.json";
-import "./App.css";
 import BlockchainServices from "./services/BlockchainServices";
 
 const schema = z.object({
@@ -19,6 +19,7 @@ type FormData = z.infer<typeof schema>;
 function App() {
   const [address, setAddress] = useState("");
   const [hash, setHash] = useState("");
+  const [isLoading, setLoading] = useState(false);
   const [gatewayContract, setGatewayContract] = useState<Contract | null>(null);
   const browserWallet = BlockchainServices.getProvider() as BrowserProvider;
 
@@ -44,36 +45,57 @@ function App() {
   });
 
   const onSubmit = async (data: FieldValues) => {
+    setLoading(true);
     const execPromise = gatewayContract!.submitMessage(
       data.contract,
       81,
       100_000,
       "0x"
     );
-    const transaction = await toast
+    toast
       .promise(execPromise, {
         pending: "Sending transaction",
         success: "Transaction submitted 👌",
         error: "Transaction failed 🤯",
       })
-      .then();
-    setHash(transaction.hash);
+      .then((transaction) => setHash(transaction.hash))
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
-    <div>
-      <p>ASTAR GATEWAY APP</p>
-      <button onClick={handleClick} disabled={address !== ""}>
+    <div className="container text-center col algin-item-center mb-3">
+      <h1 className="display-1">ASTAR GATEWAY APP</h1>
+      <button
+        className="btn btn-primary"
+        onClick={handleClick}
+        disabled={address !== ""}
+      >
         Connect Wallet
       </button>
-      {address !== "" && <p>Connected Address: {address}</p>}
-      <p>Your deployed contract (on Shibuya) </p>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input {...register("contract")} type="text" />
-        <button type="submit">Submit</button>
+      {address !== "" && <h2>Connected Address: {address}</h2>}
+      <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
+        <label className="form-label" htmlFor="contract">
+          Your deployed contract (on Shibuya){" "}
+        </label>
+        <input className="form-control" {...register("contract")} type="text" />
+        <button type="submit" className="btn btn-secondary">
+          {isLoading ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm"
+                aria-hidden="true"
+              ></span>
+              <span role="status">Mining transaction...</span>
+            </>
+          ) : (
+            "Submit"
+          )}
+        </button>
       </form>
-      {hash !== "" && <p>Transaction hash: {hash}</p>}
+      {hash !== "" && <h3>Transaction hash: {hash}</h3>}
+
       <ToastContainer
         stacked
         position="bottom-right"
@@ -87,6 +109,7 @@ function App() {
         pauseOnHover
         theme="colored"
       />
+      <h4>Support my work: 0x24B00B5987Ae6A5b7a8c73671332b938433fA7D9.</h4>
     </div>
   );
 }
