@@ -48,7 +48,7 @@ function App() {
     setLoading(true);
     const execPromise = gatewayContract!.submitMessage(
       data.contract,
-      81,
+      5,
       100_000,
       "0x"
     );
